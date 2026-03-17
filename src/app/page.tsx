@@ -18,6 +18,7 @@ export default function Home() {
   const [isOnboarding, setIsOnboarding] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
   const [isVisionLoading, setIsVisionLoading] = useState(false);
+  const [visionError, setVisionError] = useState<string | null>(null);
 
   // ── Hydrate from localStorage ─────────────────────────────────────────────
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function Home() {
     async (file: File, description?: string, thumbnailB64?: string) => {
       if (!appData) return;
       setIsVisionLoading(true);
+      setVisionError(null);
       try {
         const formData = new FormData();
         formData.append("image", file);
@@ -88,10 +90,12 @@ export default function Home() {
             const { streak, lastLogDate } = updateStreak(prev.streak, prev.lastLogDate);
             return { ...prev, records: updatedRecords, streak, lastLogDate };
           });
+        } else {
+          setVisionError("AI is currently resting. Please check your connection or try again in a moment.");
         }
       } catch (err) {
         console.error("Vision error:", err);
-        alert("Failed to analyze image. Please try again.");
+        setVisionError("AI is currently resting. Please check your connection or try again in a moment.");
       } finally {
         setIsVisionLoading(false);
       }
@@ -194,6 +198,7 @@ export default function Home() {
               profile={appData.profile}
               todayRecord={todayRecord}
               isVisionLoading={isVisionLoading}
+              visionError={visionError}
               onImageSubmit={handleImageSubmit}
               onEditMeal={handleEditMeal}
             />

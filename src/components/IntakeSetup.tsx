@@ -18,6 +18,7 @@ export default function IntakeSetup({ onComplete }: IntakeSetupProps) {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // ── Form State (metric) ──
   const [heightCm, setHeightCm] = useState(175); // cm, default 5'9"
@@ -31,6 +32,12 @@ export default function IntakeSetup({ onComplete }: IntakeSetupProps) {
   const handleSubmit = async () => {
     if (!goalText.trim() || isLoading) return;
     setIsLoading(true);
+    setErrorMessage(null);
+
+    // Debug helper — shows in browser DevTools if the key is absent
+    if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+      console.error("Gemini API Key is missing! Set NEXT_PUBLIC_GEMINI_API_KEY in your .env.local file.");
+    }
 
     try {
       const payload = {
@@ -61,11 +68,12 @@ export default function IntakeSetup({ onComplete }: IntakeSetupProps) {
           });
         }, 1800);
       } else {
-        alert("Failed to calculate goals from AI.");
+        // Stay on Step 3 — do NOT navigate to dashboard
+        setErrorMessage("AI is currently resting. Please check your connection or try again in a moment.");
       }
     } catch (error) {
-      console.error(error);
-      alert("Something went wrong. Please try again.");
+      console.error("Intake API error:", error);
+      setErrorMessage("AI is currently resting. Please check your connection or try again in a moment.");
     } finally {
       setIsLoading(false);
     }
@@ -228,6 +236,12 @@ export default function IntakeSetup({ onComplete }: IntakeSetupProps) {
       {/* ── Next / Submit footer ── */}
       {!isLoading && !isSuccess && (
         <div className="p-6 pt-2 z-10 mt-auto">
+          {/* Inline error banner — only shows on Step 3 after a failed API call */}
+          {errorMessage && step === 3 && (
+            <div className="mb-3 px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium text-center animate-in fade-in duration-300">
+              ⚠️ {errorMessage}
+            </div>
+          )}
           <button
             onClick={step < 3 ? handleNext : handleSubmit}
             disabled={step === 3 && !goalText.trim()}

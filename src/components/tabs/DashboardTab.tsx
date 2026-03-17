@@ -11,6 +11,7 @@ interface DashboardTabProps {
   profile: UserProfile;
   todayRecord: DailyRecord;
   isVisionLoading: boolean;
+  visionError: string | null;
   onImageSubmit: (file: File, description?: string, thumbnailB64?: string) => void;
   onEditMeal: (id: number, cal: number, pro: number) => void;
 }
@@ -23,6 +24,7 @@ export default function DashboardTab({
   profile,
   todayRecord,
   isVisionLoading,
+  visionError,
   onImageSubmit,
   onEditMeal,
 }: DashboardTabProps) {
@@ -78,7 +80,11 @@ export default function DashboardTab({
 
         {/* Right: Camera + Meal History */}
         <div className="flex flex-col gap-6 lg:col-span-7 xl:col-span-8">
-          <CameraLog onImageSubmit={onImageSubmit} isLoading={isVisionLoading} />
+          <CameraLog
+            onImageSubmit={onImageSubmit}
+            isLoading={isVisionLoading}
+            visionError={visionError}
+          />
 
           {/* ── Meal History List ── */}
           <div className="bg-zinc-900/60 border border-white/5 rounded-3xl p-6 backdrop-blur-md shadow-lg">

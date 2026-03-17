@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const maxDuration = 60;
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY is not configured" },
+        { error: "NEXT_PUBLIC_GEMINI_API_KEY is not configured" },
         { status: 500 }
       );
     }

@@ -6,6 +6,7 @@ import { Camera, Image as ImageIcon, X, Sparkles, Loader2 } from "lucide-react";
 interface CameraLogProps {
   onImageSubmit: (file: File, description?: string, thumbnailB64?: string) => void;
   isLoading: boolean;
+  visionError: string | null;
 }
 
 /** Resizes an image file to a small base64 thumbnail via canvas */
@@ -32,7 +33,7 @@ async function generateThumbnail(file: File, size = 80): Promise<string> {
   });
 }
 
-export default function CameraLog({ onImageSubmit, isLoading }: CameraLogProps) {
+export default function CameraLog({ onImageSubmit, isLoading, visionError }: CameraLogProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
@@ -134,6 +135,11 @@ export default function CameraLog({ onImageSubmit, isLoading }: CameraLogProps) 
                 placeholder="What are you eating? (Optional — helps AI accuracy)"
                 className="w-full bg-black/30 text-white text-sm rounded-xl px-4 py-3.5 outline-none focus:ring-1 focus:ring-emerald-500/50 border border-white/8 placeholder-zinc-600 transition-all shadow-inner"
               />
+              {visionError && (
+                <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium rounded-xl text-center animate-in fade-in duration-300">
+                  ⚠️ {visionError}
+                </div>
+              )}
               <button
                 onClick={handleConfirmAnalyze}
                 className="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_16px_rgba(16,185,129,0.3)] active:scale-95"
