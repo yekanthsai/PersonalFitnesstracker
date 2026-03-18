@@ -27,6 +27,12 @@ export default function Home() {
       setAppData(saved);
       setIsOnboarding(false);
     }
+    
+    // Register Service Worker for push notifications
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
+    
     setIsClient(true);
   }, []);
 
@@ -53,6 +59,7 @@ export default function Home() {
         records: [],
         streak: 0,
         lastLogDate: null,
+        deviceId: crypto.randomUUID(),
       };
       setAppData(newData);
       setIsOnboarding(false);
@@ -86,7 +93,7 @@ export default function Home() {
 
           setAppData((prev) => {
             if (!prev) return prev;
-            const updatedRecords = addMealToToday(prev.records, meal);
+            const updatedRecords = addMealToToday(prev.records, meal, prev.deviceId);
             const { streak, lastLogDate } = updateStreak(prev.streak, prev.lastLogDate);
             return { ...prev, records: updatedRecords, streak, lastLogDate };
           });
@@ -215,6 +222,7 @@ export default function Home() {
           {activeTab === "profile" && (
             <ProfileTab
               profile={appData.profile}
+              deviceId={appData.deviceId}
               onReset={handleReset}
             />
           )}

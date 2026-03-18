@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface MealLog {
@@ -29,6 +31,7 @@ export interface AppData {
   records: DailyRecord[]; // newest-first, capped at 30 days
   streak: number;
   lastLogDate: string | null;
+  deviceId?: string;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -45,7 +48,13 @@ export function getToday(): string {
 export function loadData(): AppData | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as AppData) : null;
+    if (!raw) return null;
+    const data = JSON.parse(raw) as AppData;
+    if (!data.deviceId) {
+      data.deviceId = crypto.randomUUID();
+      saveData(data);
+    }
+    return data;
   } catch {
     return null;
   }
@@ -66,7 +75,19 @@ export function getTodayRecord(records: DailyRecord[]): DailyRecord {
 }
 
 /** Adds a meal to today's record and returns the updated records array. */
-export function addMealToToday(records: DailyRecord[], meal: MealLog): DailyRecord[] {
+export function addMealToToday(records: DailyRecord[], meal: MealLog, deviceId?: string): DailyRecord[] {
+  if (deviceId && supabase) {
+    supabase.from('food_logs').insert({
+      user_id: deviceId,
+      name: meal.name,
+      cal: meal.cal,
+      pro: meal.pro,
+      created_at: meal.timestamp || new Date().toISOString()
+    }).then(({ error }) => {
+      if (error) console.error("Supabase sync error:", error);
+    });
+  }
+
   const today = getToday();
   const existing = records.find((r) => r.date === today);
   if (existing) {
