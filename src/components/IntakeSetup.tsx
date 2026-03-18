@@ -37,6 +37,9 @@ export default function IntakeSetup({ onComplete }: IntakeSetupProps) {
     // Debug helper — shows in browser DevTools if the key is absent
     if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
       console.error("Gemini API Key is missing! Set NEXT_PUBLIC_GEMINI_API_KEY in your .env.local file.");
+      setErrorMessage("Configuration in progress. Please check back in a minute!");
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -69,11 +72,11 @@ export default function IntakeSetup({ onComplete }: IntakeSetupProps) {
         }, 1800);
       } else {
         // Stay on Step 3 — do NOT navigate to dashboard
-        setErrorMessage("AI is currently resting. Please check your connection or try again in a moment.");
+        setErrorMessage("Configuration in progress. Please check back in a minute!");
       }
     } catch (error) {
       console.error("Intake API error:", error);
-      setErrorMessage("AI is currently resting. Please check your connection or try again in a moment.");
+      setErrorMessage("Configuration in progress. Please check back in a minute!");
     } finally {
       setIsLoading(false);
     }

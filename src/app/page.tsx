@@ -72,6 +72,13 @@ export default function Home() {
       if (!appData) return;
       setIsVisionLoading(true);
       setVisionError(null);
+      
+      if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+        setVisionError("Configuration in progress. Please check back in a minute!");
+        setIsVisionLoading(false);
+        return;
+      }
+
       try {
         const formData = new FormData();
         formData.append("image", file);
@@ -98,11 +105,11 @@ export default function Home() {
             return { ...prev, records: updatedRecords, streak, lastLogDate };
           });
         } else {
-          setVisionError("AI is currently resting. Please check your connection or try again in a moment.");
+          setVisionError("Configuration in progress. Please check back in a minute!");
         }
       } catch (err) {
         console.error("Vision error:", err);
-        setVisionError("AI is currently resting. Please check your connection or try again in a moment.");
+        setVisionError("Configuration in progress. Please check back in a minute!");
       } finally {
         setIsVisionLoading(false);
       }
