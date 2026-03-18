@@ -1,43 +1,15 @@
 "use client";
 
 import React from "react";
-import { RotateCcw, User2, Ruler, Dumbbell, Target, Activity, AlertTriangle, Bell, BellOff } from "lucide-react";
+import { RotateCcw, User2, Ruler, Dumbbell, Target, Activity, AlertTriangle } from "lucide-react";
 import type { UserProfile } from "@/lib/storage";
-import { subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/lib/push";
-import { useState, useEffect } from "react";
 
 interface ProfileTabProps {
   profile: UserProfile;
-  deviceId?: string;
   onReset: () => void;
 }
 
-export default function ProfileTab({ profile, deviceId, onReset }: ProfileTabProps) {
-  const [isPushEnabled, setIsPushEnabled] = useState(false);
-  const [isPushLoading, setIsPushLoading] = useState(true);
-
-  useEffect(() => {
-    getPushSubscription().then(sub => {
-      setIsPushEnabled(!!sub);
-      setIsPushLoading(false);
-    });
-  }, []);
-
-  const handleTogglePush = async () => {
-    if (!deviceId) return;
-    setIsPushLoading(true);
-    if (isPushEnabled) {
-      const success = await unsubscribeFromPush(deviceId);
-      if (success) setIsPushEnabled(false);
-    } else {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const success = await subscribeToPush(deviceId);
-        if (success) setIsPushEnabled(true);
-      }
-    }
-    setIsPushLoading(false);
-  };
+export default function ProfileTab({ profile, onReset }: ProfileTabProps) {
 
   const handleReset = () => {
     if (confirm("Clear all data and restart onboarding? This cannot be undone.")) {
@@ -96,31 +68,6 @@ export default function ProfileTab({ profile, deviceId, onReset }: ProfileTabPro
           <p className="text-zinc-300 text-sm leading-relaxed italic">"{profile.goal}"</p>
         </div>
       )}
-
-      {/* ── Daily Reminders ── */}
-      <div className="flex items-center justify-between bg-zinc-900/60 border border-white/5 rounded-3xl p-6 backdrop-blur-md">
-        <div>
-          <h3 className="text-sm font-bold text-white mb-1">Daily Reminders</h3>
-          <p className="text-xs text-zinc-500">Get a 10 PM push notification summary of your day.</p>
-        </div>
-        <button
-          disabled={isPushLoading || !deviceId}
-          onClick={handleTogglePush}
-          className={`
-            relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none
-            ${isPushEnabled ? 'bg-emerald-500' : 'bg-zinc-700'}
-            ${isPushLoading ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <span className="sr-only">Toggle Daily Reminders</span>
-          <span
-            className={`
-              inline-block h-6 w-6 transform rounded-full bg-white transition-transform
-              ${isPushEnabled ? 'translate-x-7' : 'translate-x-1'}
-            `}
-          />
-        </button>
-      </div>
 
       {/* ── Danger Zone ── */}
       <div className="bg-red-500/5 border border-red-500/15 rounded-3xl p-6 backdrop-blur-md mt-2">
